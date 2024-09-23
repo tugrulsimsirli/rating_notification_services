@@ -1,0 +1,20 @@
+# Go tabanlı imajı kullanıyoruz
+FROM golang:1.23-alpine
+
+# Uygulama dizinini oluştur ve ayarla
+WORKDIR /app
+
+# Bağımlılık dosyalarını kopyala
+COPY go.mod go.sum ./
+
+# Bağımlılıkları indir
+RUN go mod download
+
+# Diğer dosyaları kopyala
+COPY . .
+
+# Servisi build et
+RUN go build -o notification_service .
+
+# Servis çalıştır
+CMD ["./notification_service"]
