@@ -1,0 +1,47 @@
+definitions:
+  dto.NotificationDto:
+    properties:
+      id:
+        type: string
+      message:
+        type: string
+      provider_id:
+        type: string
+    type: object
+  utils.ErrorModel:
+    properties:
+      errors:
+        items: {}
+        type: array
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /notifications/{providerID}:
+    get:
+      consumes:
+      - application/json
+      description: Get the latest notifications about ratings
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.NotificationDto'
+            type: array
+        "204":
+          description: No Content, no new notifications
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorModel'
+      summary: Get latest notifications
+      tags:
+      - Notifications
+swagger: "2.0"
