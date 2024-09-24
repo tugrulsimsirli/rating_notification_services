@@ -3,9 +3,9 @@ package main
 import (
 	"database/sql"
 	"log"
-	"notification_service/handlers"
-	"notification_service/repositories"
-	"notification_service/services"
+	"notification_service/internal/app/services"
+	"notification_service/internal/db/repositories"
+	"notification_service/internal/http/handlers"
 
 	_ "notification_service/docs" // Import the generated docs
 

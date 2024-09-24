@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Servisi build et
-RUN go build -o notification_service .
+RUN go build -o notification_service ./cmd
 
 # Servis çalıştır
 CMD ["./notification_service"]

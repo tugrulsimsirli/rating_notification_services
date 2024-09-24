@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"notification_service/models/dto"
-	"notification_service/services"
-	_ "notification_service/utils"
+	"notification_service/internal/app/services"
+	"notification_service/internal/models/dto"
+	_ "notification_service/internal/utils"
 	"time"
 
 	"github.com/labstack/echo/v4"
