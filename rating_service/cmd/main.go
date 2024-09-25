@@ -36,10 +36,12 @@ func main() {
 
 	// Initialize repositories, services, and handlers
 	ratingRepo := repositories.RatingRepository{DB: db}
-	ratingService := services.RatingService{RatingRepository: ratingRepo}
+	ratingService := services.RatingService{
+		RatingRepository: ratingRepo,
+		RabbitMQService:  rabbitMQService,
+	}
 	ratingHandler := handlers.RatingHandler{
-		RatingService:   ratingService,
-		RabbitMQService: rabbitMQService,
+		RatingService: ratingService,
 	}
 
 	// Routes

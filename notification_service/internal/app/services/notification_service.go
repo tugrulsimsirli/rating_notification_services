@@ -1,16 +1,59 @@
 package services
 
 import (
-	"notification_service/internal/db/repositories"
+	"encoding/json"
+	"log"
 	"notification_service/internal/models/dto"
+	"time"
 
-	"github.com/google/uuid"
+	"github.com/tugrulsimsirli/rabbitmq"
 )
 
 type NotificationService struct {
-	NotificationRepository repositories.NotificationRepository
+	RabbitMQService *rabbitmq.RabbitMQService
 }
 
-func (s *NotificationService) GetLatestNotifications(providerID uuid.UUID) ([]dto.NotificationDto, error) {
-	return s.NotificationRepository.GetNotifications(providerID)
+func (s *NotificationService) GetLatestNotifications() ([]dto.NotificationDto, error) {
+	var notificationDtos []dto.NotificationDto
+
+	// RabbitMQ'dan mesajları çekiyoruz
+	channel, msgs, err := s.RabbitMQService.CreateChannel("notification_queue")
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err := s.RabbitMQService.CloseChannel(channel)
+		if err != nil {
+			log.Printf("Failed to close RabbitMQ channel: %s", err)
+		}
+	}()
+
+	// 200 ms zaman aşımı ayarla
+	timeout := time.After(2 * time.Millisecond)
+
+	for {
+		select {
+		case msg, ok := <-msgs:
+			if !ok {
+				return notificationDtos, nil
+			}
+			log.Printf("Received a message: %s", msg.Body)
+
+			var notificationDto dto.NotificationDto
+			err = json.Unmarshal(msg.Body, &notificationDto)
+			if err != nil {
+				log.Printf("Failed to unmarshal message: %s", err)
+				continue
+			}
+
+			notificationDtos = append(notificationDtos, notificationDto)
+
+		case <-timeout:
+			goto done
+		}
+	}
+
+done:
+	log.Println(notificationDtos)
+	return notificationDtos, nil
 }

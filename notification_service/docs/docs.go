@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/notifications/{providerID}": {
+        "/notifications": {
             "get": {
                 "description": "Get the latest notifications about ratings",
                 "consumes": [

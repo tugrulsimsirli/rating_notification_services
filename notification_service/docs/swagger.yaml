@@ -21,7 +21,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /notifications/{providerID}:
+  /notifications:
     get:
       consumes:
       - application/json

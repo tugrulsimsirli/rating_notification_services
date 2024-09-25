@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"rating_service/internal/app/services"
 	"rating_service/internal/models/api"
@@ -12,13 +10,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/tugrulsimsirli/rabbitmq"
 )
 
 // RatingHandler handles rating-related requests
 type RatingHandler struct {
-	RatingService   services.RatingService
-	RabbitMQService *rabbitmq.RabbitMQService
+	RatingService services.RatingService
 }
 
 // SubmitRating handles the submission of a rating
@@ -52,21 +48,6 @@ func (h *RatingHandler) SubmitRating(c echo.Context) error {
 	utils.Map(&ratingReq, &ratingDTO)
 
 	err = h.RatingService.AddRating(ratingDTO)
-	if err != nil {
-		return utils.HandleError(c, err, http.StatusInternalServerError)
-	}
-
-	// Send message to RabbitMQ with JSON format
-	message, err := json.Marshal(dto.NotificationDto{
-		Id:         uuid.New(),
-		ProviderID: ratingDTO.ProviderID,
-		Message:    fmt.Sprintf("Provider %s got a rating of %.1f", ratingDTO.ProviderID, ratingDTO.Rating),
-	})
-	if err != nil {
-		return utils.HandleError(c, err, http.StatusInternalServerError)
-	}
-
-	err = h.RabbitMQService.Publish(string(message))
 	if err != nil {
 		return utils.HandleError(c, err, http.StatusInternalServerError)
 	}
