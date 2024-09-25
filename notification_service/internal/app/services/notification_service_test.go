@@ -3,6 +3,7 @@ package services_test
 import (
 	"encoding/json"
 	"errors"
+	"notification_service/config"
 	"notification_service/internal/app/services"
 	"notification_service/internal/models/dto"
 	"testing"
@@ -16,6 +17,17 @@ import (
 
 type MockRabbitMQService struct {
 	mock.Mock
+}
+
+// Define global config
+var testConfig = &config.Config{
+	RabbitMQ: struct {
+		URL       string `yaml:"url"`
+		QueueName string `yaml:"queue_name"`
+	}{
+		URL:       "amqp://guest:guest@localhost:5672/",
+		QueueName: "notification_queue",
+	},
 }
 
 func (m *MockRabbitMQService) CreateChannel(queueName string) (*amqp.Channel, <-chan amqp.Delivery, error) {
@@ -33,6 +45,7 @@ func TestGetLatestNotifications(t *testing.T) {
 
 	notificationService := &services.NotificationService{
 		RabbitMQService: mockRabbitMQService,
+		Config:          testConfig,
 	}
 
 	mockChannel := new(amqp.Channel)
@@ -69,6 +82,7 @@ func TestGetLatestNotifications_CreateChannelError(t *testing.T) {
 
 	notificationService := &services.NotificationService{
 		RabbitMQService: mockRabbitMQService,
+		Config:          testConfig,
 	}
 
 	mockRabbitMQService.On("CreateChannel", "notification_queue").Return((*amqp.Channel)(nil), (<-chan amqp.Delivery)(nil), errors.New("channel creation error"))
@@ -87,6 +101,7 @@ func TestGetLatestNotifications_EmptyQueue(t *testing.T) {
 
 	notificationService := &services.NotificationService{
 		RabbitMQService: mockRabbitMQService,
+		Config:          testConfig,
 	}
 
 	mockChannel := new(amqp.Channel)
@@ -113,6 +128,7 @@ func TestGetLatestNotifications_UnmarshalError(t *testing.T) {
 
 	notificationService := &services.NotificationService{
 		RabbitMQService: mockRabbitMQService,
+		Config:          testConfig,
 	}
 
 	mockChannel := new(amqp.Channel)
@@ -142,6 +158,7 @@ func TestGetLatestNotifications_CloseChannelError(t *testing.T) {
 
 	notificationService := &services.NotificationService{
 		RabbitMQService: mockRabbitMQService,
+		Config:          testConfig,
 	}
 
 	mockChannel := new(amqp.Channel)
