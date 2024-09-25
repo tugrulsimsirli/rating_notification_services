@@ -3,19 +3,21 @@ package services
 import (
 	"encoding/json"
 	"log"
+	"notification_service/config"
 	"notification_service/internal/models/dto"
 	"time"
 )
 
 type NotificationService struct {
 	RabbitMQService RabbitMQServiceInterface
+	Config          *config.Config
 }
 
 func (s *NotificationService) GetLatestNotifications() ([]dto.NotificationDto, error) {
 	var notificationDtos []dto.NotificationDto
 
 	// Consume messages from RabbitMQ
-	channel, msgs, err := s.RabbitMQService.CreateChannel("notification_queue")
+	channel, msgs, err := s.RabbitMQService.CreateChannel(s.Config.RabbitMQ.QueueName)
 	if err != nil {
 		return nil, err
 	}

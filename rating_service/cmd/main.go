@@ -2,7 +2,9 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
+	"rating_service/config"
 	"rating_service/internal/app/services"
 	"rating_service/internal/db/repositories"
 	"rating_service/internal/http/handlers"
@@ -16,16 +18,23 @@ import (
 )
 
 func main() {
-	// Initialize Echo
-	e := echo.New()
-
-	// Initialize DB connection
-	db, err := sql.Open("postgres", "host=db user=rating password=rating dbname=ratingdb sslmode=disable")
+	// Config dosyasından ayarları yükle
+	cfg, err := config.LoadConfig("config.yml")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	rabbitMQService, err := rabbitmq.NewRabbitMQService("amqp://guest:guest@rabbitmq:5672/", "notification_queue")
+	// Initialize Echo
+	e := echo.New()
+	//"host=db user=rating password=rating dbname=ratingdb sslmode=disable"
+	// Initialize DB connection
+	db, err := sql.Open("postgres", cfg.DSN())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//rabbitMQService, err := rabbitmq.NewRabbitMQService("amqp://guest:guest@rabbitmq:5672/", "notification_queue")
+	rabbitMQService, err := rabbitmq.NewRabbitMQService(cfg.RabbitMQ.URL, cfg.RabbitMQ.QueueName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -49,5 +58,6 @@ func main() {
 	e.GET("/average-rating/:providerID", ratingHandler.GetAverageRating)
 
 	// Start server
-	e.Logger.Fatal(e.Start(":8080"))
+	//e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", cfg.Server.Port)))
 }

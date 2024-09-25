@@ -1,0 +1,15 @@
+mode: set
+notification_service/internal/app/services/notification_service.go:14.87,19.16 3 1
+notification_service/internal/app/services/notification_service.go:19.16,21.3 1 1
+notification_service/internal/app/services/notification_service.go:22.2,22.15 1 1
+notification_service/internal/app/services/notification_service.go:22.15,24.17 2 1
+notification_service/internal/app/services/notification_service.go:24.17,26.4 1 1
+notification_service/internal/app/services/notification_service.go:29.2,31.6 2 1
+notification_service/internal/app/services/notification_service.go:31.6,32.10 1 1
+notification_service/internal/app/services/notification_service.go:33.26,34.11 1 1
+notification_service/internal/app/services/notification_service.go:34.11,36.5 1 0
+notification_service/internal/app/services/notification_service.go:37.4,41.18 4 1
+notification_service/internal/app/services/notification_service.go:41.18,43.13 2 1
+notification_service/internal/app/services/notification_service.go:46.4,46.64 1 1
+notification_service/internal/app/services/notification_service.go:48.18,49.13 1 1
+notification_service/internal/app/services/notification_service.go:54.2,55.30 2 1

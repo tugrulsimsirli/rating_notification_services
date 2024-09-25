@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"notification_service/config"
 	"notification_service/internal/app/services"
 	"notification_service/internal/http/handlers"
 
@@ -14,10 +16,17 @@ import (
 )
 
 func main() {
+	// Config dosyasını yükle
+	cfg, err := config.LoadConfig("config.yml")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Initialize Echo
 	e := echo.New()
 
-	rabbitMQService, err := rabbitmq.NewRabbitMQService("amqp://guest:guest@rabbitmq:5672/", "notification_queue")
+	//rabbitMQService, err := rabbitmq.NewRabbitMQService("amqp://guest:guest@rabbitmq:5672/", "notification_queue")
+	rabbitMQService, err := rabbitmq.NewRabbitMQService(cfg.RabbitMQ.URL, cfg.RabbitMQ.QueueName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,5 +42,6 @@ func main() {
 	e.GET("/notifications", notificationHandler.GetNotifications)
 
 	// Start server
-	e.Logger.Fatal(e.Start(":8081"))
+	//e.Logger.Fatal(e.Start(":8081"))
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", cfg.Server.Port)))
 }

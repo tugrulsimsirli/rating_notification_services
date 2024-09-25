@@ -1,0 +1,13 @@
+database:
+  host: "db"
+  user: "rating"
+  password: "rating"
+  dbname: "ratingdb"
+  sslmode: "disable"
+
+rabbitmq:
+  url: "amqp://guest:guest@rabbitmq:5672/"
+  queue_name: "notification_queue"
+
+server:
+  port: 8080

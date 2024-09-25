@@ -1,0 +1,9 @@
+mode: set
+rating_service/internal/app/services/rating_service.go:17.66,19.16 2 1
+rating_service/internal/app/services/rating_service.go:19.16,21.3 1 1
+rating_service/internal/app/services/rating_service.go:24.2,29.16 2 1
+rating_service/internal/app/services/rating_service.go:29.16,31.3 1 0
+rating_service/internal/app/services/rating_service.go:33.2,34.16 2 1
+rating_service/internal/app/services/rating_service.go:34.16,36.3 1 1
+rating_service/internal/app/services/rating_service.go:38.2,38.12 1 1
+rating_service/internal/app/services/rating_service.go:41.108,43.2 1 1
