@@ -25,14 +25,16 @@ func main() {
 	// Initialize Echo
 	e := echo.New()
 
-	//rabbitMQService, err := rabbitmq.NewRabbitMQService("amqp://guest:guest@rabbitmq:5672/", "notification_queue")
 	rabbitMQService, err := rabbitmq.NewRabbitMQService(cfg.RabbitMQ.URL, cfg.RabbitMQ.QueueName)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer rabbitMQService.Close()
 
-	notificationService := services.NotificationService{RabbitMQService: rabbitMQService}
+	notificationService := services.NotificationService{
+		RabbitMQService: rabbitMQService,
+		Config:          cfg,
+	}
 	notificationHandler := handlers.NotificationHandler{NotificationService: notificationService}
 
 	// Serve Swagger UI
@@ -42,6 +44,5 @@ func main() {
 	e.GET("/notifications", notificationHandler.GetNotifications)
 
 	// Start server
-	//e.Logger.Fatal(e.Start(":8081"))
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", cfg.Server.Port)))
 }
