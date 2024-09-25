@@ -12,6 +12,7 @@ import (
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
 	echoSwagger "github.com/swaggo/echo-swagger"
+	"github.com/tugrulsimsirli/rabbitmq"
 )
 
 func main() {
@@ -24,17 +25,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	/* rabbitMQService, err := rabbitmq.NewRabbitMQService("amqp://guest:guest@rabbitmq:5672/", "notification_queue")
+	rabbitMQService, err := rabbitmq.NewRabbitMQService("amqp://guest:guest@rabbitmq:5672/", "notification_queue")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer rabbitMQService.Close() */
+	defer rabbitMQService.Close()
 
 	notificationRepo := repositories.NotificationRepository{DB: db}
 	notificationService := services.NotificationService{NotificationRepository: notificationRepo}
 	notificationHandler := handlers.NotificationHandler{
 		NotificationService: notificationService,
-		/* RabbitMQService:     rabbitMQService, */
+		RabbitMQService:     rabbitMQService,
 	}
 
 	// Serve Swagger UI
