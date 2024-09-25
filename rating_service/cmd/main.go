@@ -3,11 +3,11 @@ package main
 import (
 	"database/sql"
 	"log"
-	"notification_service/internal/app/services"
-	"notification_service/internal/db/repositories"
-	"notification_service/internal/http/handlers"
+	"rating_service/internal/app/services"
+	"rating_service/internal/db/repositories"
+	"rating_service/internal/http/handlers"
 
-	_ "notification_service/docs" // Import the generated docs
+	_ "rating_service/docs" // Import the generated docs
 
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
@@ -30,19 +30,21 @@ func main() {
 	}
 	defer rabbitMQService.Close() */
 
-	notificationRepo := repositories.NotificationRepository{DB: db}
-	notificationService := services.NotificationService{NotificationRepository: notificationRepo}
-	notificationHandler := handlers.NotificationHandler{
-		NotificationService: notificationService,
-		/* RabbitMQService:     rabbitMQService, */
-	}
-
 	// Serve Swagger UI
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
+	// Initialize repositories, services, and handlers
+	ratingRepo := repositories.RatingRepository{DB: db}
+	ratingService := services.RatingService{RatingRepository: ratingRepo}
+	ratingHandler := handlers.RatingHandler{
+		RatingService: ratingService,
+		/* RabbitMQService: rabbitMQService, */
+	}
+
 	// Routes
-	e.GET("/notifications/:providerID", notificationHandler.GetNotifications)
+	e.POST("/submit-rating", ratingHandler.SubmitRating)
+	e.GET("/average-rating/:providerID", ratingHandler.GetAverageRating)
 
 	// Start server
-	e.Logger.Fatal(e.Start(":8081"))
+	e.Logger.Fatal(e.Start(":8080"))
 }

@@ -1,0 +1,84 @@
+definitions:
+  api.RatingRequest:
+    properties:
+      provider_id:
+        description: UUID and required validation
+        example: d1dcc1d6-f1ee-49e8-acf6-d7a5de7f4bea
+        type: string
+      rating:
+        description: Rating should be between 1 and 5
+        maximum: 5
+        minimum: 1
+        type: number
+    required:
+    - provider_id
+    - rating
+    type: object
+  dto.AverageRatingResponseDto:
+    properties:
+      average_rating:
+        type: number
+    type: object
+  utils.ErrorModel:
+    properties:
+      errors:
+        items: {}
+        type: array
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /average-rating/{providerID}:
+    get:
+      consumes:
+      - application/json
+      description: Get the average rating for a specific service provider
+      parameters:
+      - description: Provider ID
+        in: path
+        name: providerID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AverageRatingResponseDto'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorModel'
+      summary: Get average rating
+      tags:
+      - Ratings
+  /submit-rating:
+    post:
+      consumes:
+      - application/json
+      description: Submit a new rating for a service provider
+      parameters:
+      - description: Rating
+        in: body
+        name: rating
+        required: true
+        schema:
+          $ref: '#/definitions/api.RatingRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorModel'
+      summary: Submit a rating
+      tags:
+      - Ratings
+swagger: "2.0"
