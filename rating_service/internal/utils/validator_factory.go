@@ -6,10 +6,8 @@ import (
 	"reflect"
 )
 
-// ValidatorFactory provides a method to get the appropriate validator for each model
 type ValidatorFactory struct{}
 
-// NewValidatorFactory returns a new instance of ValidatorFactory
 func NewValidatorFactory() *ValidatorFactory {
 	return &ValidatorFactory{}
 }

@@ -25,7 +25,7 @@ func (r *RatingRepository) InsertRating(rating dto.RatingDto) error {
 		return err
 	}
 
-	//If we need any other query, we can add it to transaction
+	//If need any other query, add it to transaction here
 
 	// Commit the transaction if all inserts succeed
 	return tx.Commit()
