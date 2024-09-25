@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"database/sql"
-	"fmt"
 	"rating_service/internal/models/dto"
 
 	"github.com/google/uuid"
@@ -26,15 +25,9 @@ func (r *RatingRepository) InsertRating(rating dto.RatingDto) error {
 		return err
 	}
 
-	// Second INSERT query inside the transaction (example: insert into notifications)
-	message := fmt.Sprintf("%s got a rating as %.1f", rating.ProviderID.String(), rating.Rating)
-	_, err = tx.Exec("INSERT INTO notifications (provider_id ,message) VALUES ($1, $2);", rating.ProviderID, message)
-	if err != nil {
-		tx.Rollback() // Roll back the transaction if there’s an error
-		return err
-	}
+	//If we need any other query, we can add it to transaction
 
-	// Commit the transaction if both inserts succeed
+	// Commit the transaction if all inserts succeed
 	return tx.Commit()
 }
 

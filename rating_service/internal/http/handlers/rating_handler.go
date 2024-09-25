@@ -37,22 +37,17 @@ func (h *RatingHandler) SubmitRating(c echo.Context) error {
 		return utils.HandleError(c, err, http.StatusBadRequest)
 	}
 
-	// Initialize the validator factory
 	validatorFactory := utils.NewValidatorFactory()
 
-	// Get the specific validator for RatingRequest
-	validator, err := validatorFactory.GetValidator("RatingRequest")
+	validator, err := validatorFactory.GetValidator(validators.RatingRequestValidator{})
 	if err != nil {
 		return utils.HandleError(c, err, http.StatusInternalServerError)
 	}
 
-	// Validate the request
 	if err := validator.Validate(&ratingReq); err != nil {
-		// Call HandleValidationError from the specific validator
 		return validator.(*validators.RatingRequestValidator).HandleValidationError(c, err)
 	}
 
-	// Map API request to DTO
 	var ratingDTO dto.RatingDto
 	utils.Map(&ratingReq, &ratingDTO)
 
@@ -61,7 +56,7 @@ func (h *RatingHandler) SubmitRating(c echo.Context) error {
 		return utils.HandleError(c, err, http.StatusInternalServerError)
 	}
 
-	// RabbitMQ'ya mesajı JSON formatında gönderelim
+	// Send message to RabbitMQ with JSON format
 	message, err := json.Marshal(dto.NotificationDto{
 		Id:         uuid.New(),
 		ProviderID: ratingDTO.ProviderID,

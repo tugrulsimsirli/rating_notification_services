@@ -32,7 +32,7 @@ type NotificationHandler struct {
 func (h *NotificationHandler) GetNotifications(c echo.Context) error {
 	var notificationDtos []dto.NotificationDto
 
-	// Yeni bir RabbitMQ kanalı oluştur
+	// Create a new RabbitMQ channel
 	channel, msgs, err := h.RabbitMQService.CreateChannel("notification_queue")
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
@@ -45,19 +45,18 @@ func (h *NotificationHandler) GetNotifications(c echo.Context) error {
 		}
 	}()
 
-	// Mesajları dinlemek için bir timeout ekleyelim (örneğin 2 saniye)
+	// Set a timeout for listening messages (200 ms)
 	timeout := time.After(200 * time.Millisecond)
 
 	for {
 		select {
 		case msg, ok := <-msgs:
 			if !ok {
-				// Mesaj kanalı kapalıysa çık
+				// If channel has no message, return no content
 				return c.NoContent(http.StatusNoContent)
 			}
 			log.Printf("Received a message: %s", msg.Body)
 
-			// Mesajı DTO modeline çevir
 			var notificationDto dto.NotificationDto
 			err = json.Unmarshal(msg.Body, &notificationDto)
 			if err != nil {
@@ -68,17 +67,14 @@ func (h *NotificationHandler) GetNotifications(c echo.Context) error {
 			notificationDtos = append(notificationDtos, notificationDto)
 
 		case <-timeout:
-			// Zaman aşımı dolduysa döngüden çık
 			goto done
 		}
 	}
 
 done:
-	// Eğer ilgili provider için mesaj yoksa 204 No Content dön
 	if len(notificationDtos) == 0 {
 		return c.NoContent(http.StatusNoContent)
 	}
 
-	// Mesajları DTO formatında dön
 	return c.JSON(http.StatusOK, notificationDtos)
 }

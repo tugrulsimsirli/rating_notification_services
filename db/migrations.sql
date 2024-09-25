@@ -11,12 +11,3 @@ CREATE TABLE ratings (
     is_deleted BOOLEAN NOT NULL DEFAULT false
 );
 
-DROP TABLE IF EXISTS notifications;
-CREATE TABLE notifications (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    provider_id UUID NOT NULL,
-    message TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_deleted BOOLEAN NOT NULL DEFAULT false
-);
-
