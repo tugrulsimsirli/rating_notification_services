@@ -5,18 +5,16 @@ import (
 	"log"
 	"notification_service/internal/models/dto"
 	"time"
-
-	"github.com/tugrulsimsirli/rabbitmq"
 )
 
 type NotificationService struct {
-	RabbitMQService *rabbitmq.RabbitMQService
+	RabbitMQService RabbitMQServiceInterface
 }
 
 func (s *NotificationService) GetLatestNotifications() ([]dto.NotificationDto, error) {
 	var notificationDtos []dto.NotificationDto
 
-	// RabbitMQ'dan mesajları çekiyoruz
+	// Consume messages from RabbitMQ
 	channel, msgs, err := s.RabbitMQService.CreateChannel("notification_queue")
 	if err != nil {
 		return nil, err
@@ -28,7 +26,6 @@ func (s *NotificationService) GetLatestNotifications() ([]dto.NotificationDto, e
 		}
 	}()
 
-	// 200 ms zaman aşımı ayarla
 	timeout := time.After(2 * time.Millisecond)
 
 	for {

@@ -2,6 +2,7 @@
 
 # Docker Compose commands
 DOCKER_COMPOSE = docker compose
+MIN_COVERAGE = 100
 
 # Targets
 .PHONY: up down restart clean build
@@ -22,6 +23,12 @@ clean:
 	$(DOCKER_COMPOSE) down -v
 
 # Build or rebuild services
-build:
+build: test
 	$(DOCKER_COMPOSE) down -v
 	$(DOCKER_COMPOSE) up --build
+
+test:
+	@echo "Running tests for notification_service..."
+	@cd notification_service && go test ./internal/app/services -coverprofile=coverage.out
+	@echo "Running tests for rating_service..."
+	@cd rating_service && go test ./internal/app/services -coverprofile=coverage.out

@@ -34,7 +34,7 @@ func TestAddRating(t *testing.T) {
 	ratingRepo := repositories.RatingRepository{DB: db}
 	ratingService := services.RatingService{
 		RatingRepository: ratingRepo,
-		RabbitMQService:  mockRabbitMQService, // Interface implement ediliyor
+		RabbitMQService:  mockRabbitMQService,
 	}
 
 	ratingDTO := dto.RatingDto{
@@ -59,39 +59,32 @@ func TestAddRating(t *testing.T) {
 }
 
 func TestCalculateAverageRating(t *testing.T) {
-	// Mock veritabanı oluşturuyoruz
 	db, sql_mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("sqlmock oluşturulamadı: %s", err)
 	}
 	defer db.Close()
 
-	// Repository ve Service'i başlatıyoruz
 	ratingRepo := repositories.RatingRepository{DB: db}
 	ratingService := services.RatingService{
 		RatingRepository: ratingRepo,
 	}
 
-	// Test verisini oluşturuyoruz
 	providerID := uuid.New()
 	expectedAvgRating := dto.AverageRatingResponseDto{
 		AverageRating: 4.5,
 	}
 
-	// sqlmock ile COALESCE(AVG(rating)) sorgusunu simüle ediyoruz
 	rows := sqlmock.NewRows([]string{"coalesce"}).AddRow(float64(4.5))
 	sql_mock.ExpectQuery("SELECT COALESCE\\(AVG\\(rating\\), 0\\) FROM ratings WHERE provider_id = \\$1").
 		WithArgs(providerID).
 		WillReturnRows(rows)
 
-	// Servis metodunu çağırıyoruz
 	avgRating, err := ratingService.CalculateAverageRating(providerID)
 	assert.NoError(t, err)
 
-	// Beklenen ve dönen sonuçları karşılaştırıyoruz
 	assert.Equal(t, expectedAvgRating, avgRating)
 
-	// Veritabanı işlemlerinin tamamlandığını doğruluyoruz
 	err = sql_mock.ExpectationsWereMet()
 	assert.NoError(t, err)
 }
@@ -116,14 +109,13 @@ func TestAddRating_DBError(t *testing.T) {
 		Rating:     4.5,
 	}
 
-	// Veritabanı işlemi başarısız olacak şekilde simüle ediliyor
 	sql_mock.ExpectBegin()
 	sql_mock.ExpectExec("INSERT INTO ratings").WithArgs(sqlmock.AnyArg(), float64(4.5)).
 		WillReturnError(fmt.Errorf("DB error"))
 	sql_mock.ExpectRollback()
 
 	err = ratingService.AddRating(ratingDTO)
-	assert.Error(t, err) // Hatanın geri döndüğünü doğruluyoruz
+	assert.Error(t, err)
 
 	err = sql_mock.ExpectationsWereMet()
 	assert.NoError(t, err)
@@ -154,11 +146,10 @@ func TestAddRating_RabbitMQError(t *testing.T) {
 		WillReturnResult(sqlmock.NewResult(1, 1))
 	sql_mock.ExpectCommit()
 
-	// RabbitMQ Publish işlemi hatalı olacak şekilde simüle ediliyor
 	mockRabbitMQService.On("Publish", mock.AnythingOfType("string")).Return(fmt.Errorf("RabbitMQ error"))
 
 	err = ratingService.AddRating(ratingDTO)
-	assert.Error(t, err) // Hatanın geri döndüğünü doğruluyoruz
+	assert.Error(t, err)
 
 	mockRabbitMQService.AssertExpectations(t)
 	err = sql_mock.ExpectationsWereMet()
